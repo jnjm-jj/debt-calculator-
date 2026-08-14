@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรแกรมคำนวณการชำระหนี้</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fb;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, .08);
+        }
+
+        .summary {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .summary h4 {
+            color: #0d6efd;
+            margin: 0;
+        }
+
+        .table-responsive {
+            max-height: 500px;
+        }
+
+        .nav-tabs .nav-link {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container">
+            <span class="navbar-brand fw-bold">Debt Calculator</span>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+
+        <div class="text-center mb-4">
+            <h2>โปรแกรมคำนวณการชำระหนี้</h2>
+            <p class="text-muted">ตัดดอกเบี้ยก่อน แล้วจึงตัดเงินต้น</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+
+                <h5>ข้อมูลพื้นฐาน</h5>
+
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label>เงินต้นคงเหลือ</label>
+                        <input id="principal" class="form-control" type="number" value="100000">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>ดอกเบี้ยค้างปัจจุบัน</label>
+                        <input id="arrears" class="form-control" type="number" value="5000">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>อัตราดอกเบี้ยต่อปี (%)</label>
+                        <input id="rate" class="form-control" type="number" value="6" step="0.01">
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card">
+
+            <div class="card-header p-0">
+
+                <ul class="nav nav-tabs">
+
+                    <li class="nav-item">
+                        <a class="nav-link active" id="tab1">แบบที่ 1</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="tab2">แบบที่ 2</a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <div class="card-body">
+
+                <!-- แบบ 1 -->
+                <div id="mode1">
+
+                    <h5>กำหนดจำนวนเงินที่ชำระ</h5>
+
+                    <div class="row g-3 align-items-end">
+
+                        <div class="col-md-4">
+                            <label>ชำระ</label>
+                            <select id="frequency" class="form-select">
+                                <option value="monthly">รายเดือน</option>
+                                <option value="yearly">รายปี</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>จำนวนเงินต่อครั้ง</label>
+                            <input id="payment" class="form-control" type="number" value="5000">
+                        </div>
+
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" onclick="calculatePaymentMode()">
+                                คำนวณ
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- แบบ 2 -->
+                <div id="mode2" style="display:none;">
+
+                    <h5>กำหนดระยะเวลาปิดหนี้</h5>
+
+                    <div class="row g-3 align-items-end">
+
+                        <div class="col-md-4">
+                            <label>หน่วยเวลา</label>
+                            <select id="periodUnit" class="form-select">
+                                <option value="months">เดือน</option>
+                                <option value="years">ปี</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label>จำนวน</label>
+                            <input id="periodValue" class="form-control" type="number" value="24">
+                        </div>
+
+                        <div class="col-md-4">
+                            <button class="btn btn-success w-100" onclick="calculatePeriodMode()">
+                                คำนวณ
+                            </button>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="result" class="mt-4"></div>
+
+    </div>
+
+    <script>
+
+        const money = n => new Intl.NumberFormat("th-TH", {minimumFractionDigits: 2, maximumFractionDigits: 2}).format(n);
+
+        tab1.onclick = () => {
+            tab1.classList.add("active");
+            tab2.classList.remove("active");
+            mode1.style.display = "block";
+            mode2.style.display = "none";
+        };
+
+        tab2.onclick = () => {
+            tab2.classList.add("active");
+            tab1.classList.remove("active");
+            mode1.style.display = "none";
+            mode2.style.display = "block";
+        };
+
+        function simulate(principal, arrears, annualRate, payment, frequency, max = 10000) {
+
+            const ppy = frequency === "monthly" ? 12 : 1;
+            const r = annualRate / 100 / ppy;
+
+            let p = principal;
+            let a = arrears;
+
+            let totalInterest = 0;
+            let totalPrincipal = 0;
+            let totalPaid = 0;
+
+            let schedule = [];
+
+            for (let i = 1; i <= max; i++) {
+
+                let currentInterest = p * r;
+                let interestBefore = a + currentInterest;
+
+                let remain = payment;
+
+                let interestPaid = Math.min(remain, interestBefore);
+                remain -= interestPaid;
+
+                a = interestBefore - interestPaid;
+
+                let principalPaid = Math.min(remain, p);
+                p -= principalPaid;
+
+                let actual = interestPaid + principalPaid;
+
+                schedule.push({
+                    period: i,
+                    opening: p + principalPaid,
+                    interest: currentInterest,
+                    arrears: interestBefore - currentInterest,
+                    interestPaid,
+                    principalPaid,
+                    actual,
+                    closing: p
+                });
+
+                totalInterest += interestPaid;
+                totalPrincipal += principalPaid;
+                totalPaid += actual;
+
+                if (p <= 1e-8 && a <= 1e-8) break;
+
+                if (principalPaid === 0 && interestPaid < interestBefore) {
+                    throw "ยอดชำระน้อยกว่าดอกเบี้ย จึงไม่สามารถปิดหนี้ได้";
+                }
+
+            }
+
+            return {
+                periods: schedule.length,
+                totalInterest,
+                totalPrincipal,
+                totalPaid,
+                schedule
+            };
+
+        }
+
+        function duration(periods, freq) {
+
+            if (freq === "yearly") return periods + " ปี";
+
+            let y = Math.floor(periods / 12);
+            let m = periods % 12;
+
+            if (y && m) return y + " ปี " + m + " เดือน";
+            if (y) return y + " ปี";
+            return m + " เดือน";
+
+        }
+
+        function render(res, title, freq, msg) {
+
+            let html = `
+
+<div class="card">
+
+<div class="card-body">
+
+<h4>${title}</h4>
+
+<div class="alert alert-info">${msg}</div>
+
+<div class="row g-3 mb-4">
+
+<div class="col-md-3">
+<div class="summary">
+<div>ระยะเวลา</div>
+<h4>${duration(res.periods, freq)}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="summary">
+<div>ดอกเบี้ยรวม</div>
+<h4>${money(res.totalInterest)}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="summary">
+<div>เงินต้นรวม</div>
+<h4>${money(res.totalPrincipal)}</h4>
+</div>
+</div>
+
+<div class="col-md-3">
+<div class="summary">
+<div>ยอดชำระรวม</div>
+<h4>${money(res.totalPaid)}</h4>
+</div>
+</div>
+
+</div>
+
+<div class="table-responsive">
+
+<table class="table table-striped table-hover">
+
+<thead class="table-light">
+
+<tr>
+
+<th>งวด</th>
+<th>เงินต้นต้นงวด</th>
+<th>ดอกเบี้ยงวด</th>
+<th>ตัดดอกเบี้ย</th>
+<th>ตัดเงินต้น</th>
+<th>ยอดชำระ</th>
+<th>เงินต้นคงเหลือ</th>
+
+</tr>
+
+</thead>
+
+<tbody>`;
+
+            res.schedule.forEach(s => {
+
+                html += `
+<tr>
+
+<td>${s.period}</td>
+<td>${money(s.opening)}</td>
+<td>${money(s.interest)}</td>
+<td>${money(s.interestPaid)}</td>
+<td>${money(s.principalPaid)}</td>
+<td>${money(s.actual)}</td>
+<td>${money(s.closing)}</td>
+
+</tr>`;
+
+            });
+
+            html += `</tbody></table></div></div></div>`;
+
+            result.innerHTML = html;
+
+        }
+
+        function base() {
+
+            return {
+                principal: +principal.value,
+                arrears: +arrears.value,
+                rate: +rate.value
+            };
+
+        }
+
+        function calculatePaymentMode() {
+
+            try {
+
+                let b = base();
+
+                let freq = frequency.value;
+
+                let pay = +payment.value;
+
+                let r = simulate(b.principal, b.arrears, b.rate, pay, freq);
+
+                render(
+                    r,
+                    "ผลการคำนวณ",
+                    freq,
+                    `หากชำระ ${freq === "monthly" ? "เดือนละ" : "ปีละ"} ${money(pay)} บาท จะปิดหนี้ได้ใน ${duration(r.periods, freq)}`
+                );
+
+            } catch (e) {
+
+                alert(e);
+
+            }
+
+        }
+
+        function calculatePeriodMode() {
+
+            try {
+
+                let b = base();
+
+                let freq = periodUnit.value === "months" ? "monthly" : "yearly";
+
+                let periods = +periodValue.value;
+
+                const ppy = freq === "monthly" ? 12 : 1;
+                const ratePeriod = b.rate / 100 / ppy;
+                const total = b.principal + b.arrears;
+
+                let payment;
+
+                if (ratePeriod === 0) {
+
+                    payment = total / periods;
+
+                } else {
+
+                    let low = 0;
+                    let high = total * Math.pow(1 + ratePeriod, periods) + 1;
+
+                    for (let i = 0; i < 100; i++) {
+
+                        let mid = (low + high) / 2;
+
+                        try {
+
+                            let r = simulate(b.principal, b.arrears, b.rate, mid, freq, periods + 2);
+
+                            if (r.periods <= periods)
+                                high = mid;
+                            else
+                                low = mid;
+
+                        } catch {
+
+                            low = mid;
+
+                        }
+
+                    }
+
+                    payment = high;
+
+                }
+
+                let res = simulate(b.principal, b.arrears, b.rate, payment, freq, periods + 2);
+
+                render(
+                    res,
+                    "ผลการคำนวณ",
+                    freq,
+                    `หากต้องการปิดหนี้ภายใน ${periods} ${freq === "monthly" ? "เดือน" : "ปี"} ควรชำระ ${freq === "monthly" ? "เดือนละ" : "ปีละ"} ${money(payment)} บาท`
+                );
+
+            } catch (e) {
+
+                alert(e);
+
+            }
+
+        }
+
+        calculatePaymentMode();
+
+    </script>
+
+</body>
+
+</html>
