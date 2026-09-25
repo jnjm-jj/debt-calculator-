@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>โปรแกรมคำนวณการชำระหนี้</title>
+
+<style>
+
+* {
+box-sizing: border-box;
+}
+
+body {
+margin: 0;
+padding: 0;
+font-family:
+-apple-system,
+BlinkMacSystemFont,
+"Segoe UI",
+Tahoma,    
+Arial,
+sans-serif;
+
+background: #f1f5f9;
+color: #1e293b;
+}
+
+.container {
+width: 95%;
+max-width: 1200px;
+margin: 25px auto 50px;
+}
+
+/* =========================
+HEADER
+========================= */
+
+.header {
+background: linear-gradient(
+135deg,
+#2563eb,
+#0ea5e9,
+#10b981
+);
+
+color: white;
+
+padding: 30px 25px;
+
+border-radius: 20px;
+
+text-align: center;
+
+box-shadow:
+0 10px 30px rgba(15, 23, 42, 0.15);
+
+margin-bottom: 20px;
+}
+
+.header h1 {
+margin: 0 0 8px;
+
+font-size: 30px;
+}
+
+.header p {
+margin: 0;
+
+opacity: 0.95;
+
+font-size: 16px;
+}
+
+/* =========================
+CARD
+========================= */
+
+.card {
+background: white;
+
+border-radius: 18px;
+
+padding: 25px;
+
+margin-bottom: 20px;
+
+box-shadow:
+0 5px 20px rgba(15, 23, 42, 0.08);
+}
+
+.card h2 {
+margin-top: 0;
+
+color: #0f172a;
+
+font-size: 21px;
+
+border-left: 5px solid #2563eb;
+
+padding-left: 12px;
+}
+
+/* =========================
+FORM
+========================= */
+
+.form-grid {
+display: grid;
+
+grid-template-columns:
+repeat(2, minmax(0, 1fr));
+
+gap: 18px;
+}
+
+.form-group {
+display: flex;
+
+flex-direction: column;
+}
+
+.form-group label {
+font-weight: 600;
+
+margin-bottom: 7px;
+
+color: #334155;
+}
+
+.form-group input,
+.form-group select {
+width: 100%;
+
+padding: 13px 14px;
+
+border: 1px solid #cbd5e1;
+
+border-radius: 10px;
+
+font-size: 16px;
+
+outline: none;
+
+background: white;
+
+transition: 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+
+border-color: #2563eb;
+
+box-shadow:
+0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.help {
+margin-top: 5px;
+
+font-size: 13px;
+
+color: #64748b;
+}
+
+/* =========================
+PLAN
+========================= */
+
+.plan-box {
+margin-top: 20px;
+
+padding: 18px;
+
+background: #f8fafc;
+
+border: 1px solid #e2e8f0;
+
+border-radius: 14px;
+}
+
+.plan-box h3 {
+margin-top: 0;
+
+color: #1e40af;
+}
+
+/* =========================
+BUTTON
+========================= */
+
+.button-area {
+
+display: flex;
+
+gap: 12px;
+
+flex-wrap: wrap;
+
+margin-top: 25px;
+}
+
+button {
+
+border: none;
+
+border-radius: 10px;
+
+padding: 13px 22px;
+
+font-size: 16px;
+
+font-weight: 600;
+
+cursor: pointer;
+
+transition: 0.2s;
+}
+
+.btn-primary {
+
+background: #2563eb;
+
+color: white;
+}
+
+.btn-primary:hover {
+
+background: #1d4ed8;
+
+transform: translateY(-1px);
+}
+
+.btn-secondary {
+
+background: #e2e8f0;
+
+color: #334155;
+}
+
+.btn-secondary:hover {
+
+background: #cbd5e1;
+}
+
+.btn-print {
+
+background: #059669;
+
+color: white;
+}
+
+.btn-print:hover {
+
+background: #047857;
+}
+
+/* =========================
+RESULT
+========================= */
+
+#result {
+display: none;
+}
+
+.result-grid {
+
+display: grid;
+
+grid-template-columns:
+repeat(4, minmax(0, 1fr));
+
+gap: 15px;
+
+margin-top: 20px;
+}
+
+.result-box {
+
+padding: 18px;
+
+border-radius: 14px;
+
+background: #f8fafc;
+
+border: 1px solid #e2e8f0;
+
+text-align: center;
+}
+
+.result-box .title {
+
+color: #64748b;
+
+font-size: 14px;
+
+margin-bottom: 8px;
+}
+
+.result-box .value {
+
+font-size: 22px;
+
+font-weight: 700;
+
+color: #0f172a;
+}
+
+.result-box.highlight {
+
+background: #eff6ff;
+
+border-color: #bfdbfe;
+}
+
+.result-box.highlight .value {
+
+color: #2563eb;
+}
+
+/* =========================
+WARNING / SUCCESS
+========================= */
+
+.message {
+
+padding: 15px 18px;
+
+border-radius: 12px;
+
+margin-bottom: 18px;
+
+font-weight: 500;
+
+line-height: 1.6;
+}
+
+.message.success {
+
+background: #ecfdf5;
+
+color: #065f46;
+
+border: 1px solid #a7f3d0;
+}
+
+.message.warning {
+
+background: #fff7ed;
+
+color: #9a3412;
+
+border: 1px solid #fed7aa;
+}
+
+.message.error {
+
+background: #fef2f2;
+
+color: #991b1b;
+
+border: 1px solid #fecaca;
+}
+
+/* =========================
+TABLE
+========================= */
+
+.table-wrapper {
+
+width: 100%;
+
+overflow-x: auto;
+
+margin-top: 20px;
+
+border-radius: 12px;
+
+border: 1px solid #e2e8f0;
+}
+
+table {
+
+width: 100%;
+
+border-collapse: collapse;
+
+min-width: 850px;
+
+background: white;
+}
+
+thead {
+
+background: #1e40af;
+
+color: white;
+}
+
+th {
+
+padding: 13px 10px;
+
+font-size: 14px;
+
+white-space: nowrap;
+
+text-align: center;
+}
+
+td {
+
+padding: 11px 10px;
+
+border-top: 1px solid #e2e8f0;
+
+font-size: 14px;
+
+white-space: nowrap;
+}
+
+tbody tr:nth-child(even) {
+
+background: #f8fafc;
+}
+
+tbody tr:hover {
+
+background: #eff6ff;
+}
+
+td.number {
+
+text-align: right;
+
+font-variant-numeric:
+tabular-nums;
+}
+
+td.center {
+
+text-align: center;
+}
+
+/* =========================
+DETAILS
+========================= */
+
+.detail-grid {
+
+display: grid;
+
+grid-template-columns:
+repeat(2, minmax(0, 1fr));
+
+gap: 10px 30px;
+
+margin-top: 15px;
+}
+
+.detail-item {
+
+padding: 8px 0;
+
+border-bottom: 1px dashed #cbd5e1;
+}
+
+.detail-item strong {
+
+color: #334155;
+}
+
+/* =========================
+MOBILE
+========================= */
+
+@media (max-width: 800px) {
+
+.container {
+
+width: 96%;
+
+margin-top: 12px;
+}
+
+.header {
+
+padding: 24px 15px;
+
+border-radius: 15px;
+}
+
+.header h1 {
+
+font-size: 24px;
+}
+
+.card {
+
+padding: 18px;
+
+border-radius: 14px;
+}
+
+.form-grid {
+
+grid-template-columns: 1fr;
+}
+
+.result-grid {
+
+grid-template-columns:
+repeat(2, minmax(0, 1fr));
+}
+
+.detail-grid {
+
+grid-template-columns: 1fr;
+}
+
+button {
+
+width: 100%;
+}
+}
+
+@media (max-width: 450px) {
+
+.result-grid {
+
+grid-template-columns: 1fr;
+}
+}
+
+/* =========================
+PRINT
+========================= */
+
+@media print {
+
+body {
+
+background: white;
+}
+
+.container {
+
+width: 100%;
+
+max-width: none;
+
+margin: 0;
+}
+
+.header {
+
+box-shadow: none;
+
+color: black;
+
+background: white;
+
+border: 2px solid #1e293b;
+}
+
+.card {
+
+box-shadow: none;
+
+border: 1px solid #ddd;
+
+page-break-inside: avoid;
+}
+
+.button-area,
+#inputCard {
+
+display: none !important;
+}
+
+#result {
+
+display: block !important;
+}
+
+table {
+
+min-width: 0;
+
+font-size: 11px;
+}
+
+th,
+td {
+
+padding: 5px;
+}
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+<!-- =========================
+HEADER
+========================== -->
+
+<div class="header">
+
+<h1>
+โปรแกรมคำนวณการชำระหนี้
+</h1>
+
+<p>
+การคำนวณการชำระหนี้นี้เป็นการคำนวณเพียงคร่าว ๆ เท่านั้น
+</p>
+
+</div>
+
+
+<!-- =========================
+INPUT CARD
+========================== -->
+
+<div class="card" id="inputCard">
+
+<h2>
+ข้อมูลหนี้
+</h2>
+
+
+<div class="form-grid">
+
+
+<!-- เงินต้น -->
+
+<div class="form-group">
+
+<label for="principal">
+ต้นเงิน (บาท)
+</label>
+
+<input
+type="number"
+id="principal"
+min="0"
+step="0.01"
+placeholder="เช่น 100000"
+>
+
+<div class="help">
+กรุณาระบุต้นเงิน
+</div>
+
+</div>
+
+
+<!-- ดอกเบี้ยปัจจุบัน -->
+
+<div class="form-group">
+
+<label for="currentInterest">
+ดอกเบี้ย ณ ปัจจุบัน (บาท)
+</label>
+
+<input
+type="number"
+id="currentInterest"
+min="0"
+step="0.01"
+placeholder="ระบุดอกเบี้ยตามใบแจ้งหนี้"
+>
+
+<div class="help">
+ดอกเบี้ย = ต้นเงิน × อัตราดอกเบี้ย
+</div>
+
+</div>
+
+
+<!-- อัตราดอกเบี้ย -->
+
+<div class="form-group">
+
+<label for="annualRate">
+อัตราดอกเบี้ยต่อปี (%)
+</label>
+
+<input
+type="number"
+id="annualRate"
+min="0"
+step="0.001"
+placeholder="6.575"
+>
+
+<div class="help">
+ปัจจุบัน MRR = 6.575%
+</div>
+
+</div>
+
+
+<!-- แผน -->
+
+<div class="form-group">
+
+<label for="plan">
+
+เลือกแผนการชำระ
+
+</label>
+
+<select id="plan">
+
+<option value="plan1">
+แบบที่ 1 : กำหนดจำนวนเงินที่ชำระ
+</option>
+
+<option value="plan2">
+แบบที่ 2 : กำหนดระยะเวลาที่ต้องการใช้หนี้หมด
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+
+<!-- =========================
+PLAN 1
+========================== -->
+
+<div
+class="plan-box"
+id="plan1Box"
+>
+
+<h3>
+แบบที่ 1 : กำหนดจำนวนเงินที่ต้องการชำระ
+</h3>
+
+
+<div class="form-grid">
+
+
+<div class="form-group">
+
+<label for="paymentFrequency">
+
+ต้องการชำระเป็น
+
+</label>
+
+<select id="paymentFrequency">
+
+<option value="monthly">
+รายเดือน
+</option>
+
+<option value="yearly">
+รายปี
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="paymentAmount">
+
+จำนวนเงินที่ต้องการชำระ
+
+</label>
+
+<input
+type="number"
+id="paymentAmount"
+min="0"
+step="0.01"
+placeholder="เช่น 5000"
+>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- =========================
+PLAN 2
+========================== -->
+
+<div
+class="plan-box"
+id="plan2Box"
+style="display:none;"
+>
+
+<h3>
+แบบที่ 2 : กำหนดระยะเวลาที่ต้องการใช้หนี้หมด
+</h3>
+
+
+<div class="form-grid">
+
+
+<div class="form-group">
+
+<label for="durationUnit">
+
+ต้องการกำหนดระยะเวลาเป็น
+
+</label>
+
+<select id="durationUnit">
+
+<option value="months">
+จำนวนเดือน
+</option>
+
+<option value="years">
+จำนวนปี
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label for="durationValue">
+
+ระยะเวลาที่ต้องการ
+
+</label>
+
+<input
+type="number"
+id="durationValue"
+min="1"
+step="1"
+placeholder="เช่น 5"
+>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- BUTTON -->
+
+<div class="button-area">
+
+<button
+class="btn-primary"
+onclick="calculate()"
+>
+คำนวณการชำระหนี้
+</button>
+
+
+<button
+class="btn-secondary"
+onclick="resetForm()"
+>
+ล้างข้อมูล
+</button>
+
+</div>
+
+</div>
+
+
+
+<!-- =========================
+RESULT
+========================== -->
+
+<div
+class="card"
+id="result"
+>
+
+<h2>
+ผลการคำนวณ
+</h2>
+
+
+<div id="message"></div>
+
+
+<!-- RESULT SUMMARY -->
+
+<div
+class="result-grid"
+id="resultMetrics"
+>
+
+</div>
+
+
+<!-- DETAIL -->
+
+<div class="card" style="margin-top:20px;">
+
+<h3>
+รายละเอียดข้อมูล
+</h3>
+
+<div
+class="detail-grid"
+id="detailInfo"
+>
+</div>
+
+</div>
+
+
+<!-- SCHEDULE -->
+
+<h3 style="margin-top:30px;">
+
+ตารางรายละเอียดการชำระ
+
+</h3>
+
+
+<div
+class="table-wrapper"
+id="scheduleContainer"
+>
+
+</div>
+
+
+<!-- PRINT -->
+
+<div class="button-area">
+
+<button
+class="btn-print"
+onclick="window.print()"
+>
+🖨 พิมพ์ผลการคำนวณ
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+CONSTANTS
+========================================================= */
+
+
+const DEFAULT_RATE = 0.06575;
+
+/*
+ค่า tolerance สำหรับการตรวจสอบเศษสตางค์
+*/
+
+const EPS = 0.005;
+
+
+/*
+ป้องกัน loop ที่ยาวผิดปกติ
+*/
+
+const MAX_PERIODS = 12000;
+
+
+
+/* =========================================================
+FORMAT NUMBER
+========================================================= */
+
+function formatMoney(value) {
+
+if (!Number.isFinite(value)) {
+
+return "0.00";
+
+}
+
+return value.toLocaleString(
+"th-TH",
+{
+minimumFractionDigits: 2,
+maximumFractionDigits: 2
+}
+);
+
+}
+
+
+
+function formatInteger(value) {
+
+if (!Number.isFinite(value)) {
+
+return "0";
+
+}
+
+return value.toLocaleString(
+"th-TH",
+{
+maximumFractionDigits: 0
+}
+);
+
+}
+
+
+
+/* =========================================================
+GET BASIC DATA
+========================================================= */
+
+function getBase() {
+
+
+const principalInput =
+document.getElementById("principal").value;
+
+
+const rateInput =
+document.getElementById("annualRate").value;
+
+
+const currentInterestInput =
+document.getElementById("currentInterest").value;
+
+
+
+const principal =
+Number(principalInput);
+
+
+
+if (
+!Number.isFinite(principal)
+||
+principal <= 0
+) {
+
+throw new Error(
+"กรุณากรอกเงินต้นให้ถูกต้อง"
+);
+
+}
+
+
+
+/*
+ถ้าไม่กรอกอัตราดอกเบี้ย
+ให้ใช้ 6.575%
+*/
+
+let annualRate;
+
+if (
+rateInput === ""
+||
+!Number.isFinite(Number(rateInput))
+) {
+
+annualRate =
+DEFAULT_RATE;
+
+} else {
+
+annualRate =
+Number(rateInput) / 100;
+
+}
+
+
+
+if (annualRate < 0) {
+
+throw new Error(
+"อัตราดอกเบี้ยต้องไม่ติดลบ"
+);
+
+}
+
+
+
+/*
+ถ้าไม่กรอกดอกเบี้ยปัจจุบัน
+ให้คำนวณจากเงินต้น × 6.575%
+*/
+
+let currentInterest;
+
+
+if (
+currentInterestInput === ""
+) {
+
+currentInterest =
+principal * DEFAULT_RATE;
+
+} else {
+
+currentInterest =
+Number(currentInterestInput);
+
+}
+
+
+
+if (
+!Number.isFinite(currentInterest)
+||
+currentInterest < 0
+) {
+
+throw new Error(
+"กรุณากรอกดอกเบี้ย ณ ปัจจุบันให้ถูกต้อง"
+);
+
+}
+
+
+
+return {
+
+principal:
+principal,
+
+annualRate:
+annualRate,
+
+currentInterest:
+currentInterest
+
+};
+
+}
+
+
+
+/* =========================================================
+SIMULATE PAYMENT
+========================================================= */
+
+
+/*
+periodsPerYear
+
+รายเดือน = 12
+รายปี = 1
+*/
+
+function simulate(
+principal,
+annualRate,
+currentInterest,
+payment,
+periodsPerYear,
+maxPeriods = MAX_PERIODS
+) {
+
+
+if (
+!Number.isFinite(payment)
+||
+payment <= 0
+) {
+
+return {
+
+status: "invalid",
+
+message:
+"จำนวนเงินที่ชำระต้องมากกว่า 0"
+
+};
+
+}
+
+
+
+let balance =
+principal;
+
+
+
+/*
+ดอกเบี้ยสะสมเริ่มต้น
+= ดอกเบี้ย ณ ปัจจุบัน
+*/
+
+let accruedInterest =
+currentInterest;
+
+
+
+let totalInterestPaid =
+0;
+
+
+
+let totalPrincipalPaid =
+0;
+
+
+
+let totalPayment =
+0;
+
+
+
+const rows = [];
+
+
+
+let noPrincipalPeriods =
+0;
+
+
+
+let previousBalance =
+balance;
+
+
+
+let previousTotalDebt =
+balance + accruedInterest;
+
+
+
+for (
+let period = 1;
+period <= maxPeriods;
+period++
+) {
+
+
+/*
+งวดแรก
+ใช้ดอกเบี้ย ณ ปัจจุบันโดยตรง
+
+งวดถัดไป
+ดอกเบี้ยเดิมที่ค้าง
++
+เงินต้นคงเหลือ × อัตราดอกเบี้ย
+*/
+
+let interest;
+
+
+if (period === 1) {
+
+interest =
+accruedInterest;
+
+} else {
+
+interest =
+accruedInterest
++
+balance *
+annualRate /
+periodsPerYear;
+
+}
+
+
+
+/*
+จำนวนเงินที่ชำระจริง
+ห้ามเกินยอดหนี้ทั้งหมด
+*/
+
+const actualPayment =
+Math.min(
+payment,
+balance + interest
+);
+
+
+
+/*
+ตัดดอกเบี้ยก่อน
+*/
+
+const interestPaid =
+Math.min(
+actualPayment,
+interest
+);
+
+
+
+/*
+เงินที่เหลือหลังจากตัดดอกเบี้ย
+จึงนำไปตัดเงินต้น
+*/
+
+const principalPaid =
+Math.max(
+0,
+actualPayment - interest
+);
+
+
+
+/*
+เงินต้นคงเหลือใหม่
+*/
+
+const newBalance =
+Math.max(
+0,
+balance - principalPaid
+);
+
+
+
+/*
+ดอกเบี้ยที่ยังค้าง
+*/
+
+const newAccruedInterest =
+Math.max(
+0,
+interest - actualPayment
+);
+
+
+
+/*
+เก็บยอดรวม
+*/
+
+totalInterestPaid +=
+interestPaid;
+
+
+totalPrincipalPaid +=
+principalPaid;
+
+
+totalPayment +=
+actualPayment;
+
+
+
+/*
+เก็บข้อมูลแต่ละงวด
+
+ใช้สำหรับตาราง
+*/
+
+rows.push({
+
+period:
+period,
+
+balance:
+newBalance,
+
+interest:
+interest,
+
+principal:
+principalPaid,
+
+interestPaid:
+interestPaid,
+
+payment:
+actualPayment
+
+});
+
+
+
+/*
+ตรวจสอบว่าหนี้หมดหรือยัง
+*/
+
+if (
+newBalance <= EPS
+&&
+newAccruedInterest <= EPS
+) {
+
+return {
+
+status: "paid",
+
+periods:
+period,
+
+totalInterestPaid:
+totalInterestPaid,
+
+totalPrincipalPaid:
+totalPrincipalPaid,
+
+totalPayment:
+totalPayment,
+
+rows:
+rows
+
+};
+
+}
+
+
+
+/*
+ถ้าไม่มีการตัดเงินต้น
+แสดงว่าจ่ายไม่พอสำหรับลดเงินต้น
+*/
+
+if (
+principalPaid <= EPS
+) {
+
+noPrincipalPeriods++;
+
+} else {
+
+noPrincipalPeriods = 0;
+
+}
+
+
+
+/*
+ถ้าไม่สามารถลดเงินต้นได้เป็นเวลานาน
+ให้ถือว่าไม่สามารถใช้หนี้หมด
+*/
+
+if (
+noPrincipalPeriods >= 24
+) {
+
+return {
+
+status:
+"impossible",
+
+message:
+"หากชำระตามจำนวนเงินที่กรอก จะไม่สามารถใช้หนี้จนหมดได้",
+
+periods:
+period,
+
+totalInterestPaid:
+totalInterestPaid,
+
+totalPrincipalPaid:
+totalPrincipalPaid,
+
+totalPayment:
+totalPayment,
+
+rows:
+rows
+
+};
+
+}
+
+
+
+/*
+ตรวจสอบยอดหนี้รวม
+
+หากยอดหนี้ไม่ลดลง
+หรือเพิ่มขึ้นอย่างต่อเนื่อง
+ให้หยุดการคำนวณ
+*/
+
+const currentTotalDebt =
+newBalance
++
+newAccruedInterest;
+
+
+
+if (
+period > 1
+&&
+currentTotalDebt >=
+previousTotalDebt - EPS
+) {
+
+/*
+ถ้ายอดหนี้ไม่ลดลง
+ติดต่อกัน ให้ตรวจสอบอีกครั้ง
+*/
+
+if (
+actualPayment <= interest + EPS
+) {
+
+return {
+
+status:
+"impossible",
+
+message:
+"หากชำระตามจำนวนเงินที่กรอก จะไม่สามารถใช้หนี้จนหมดได้",
+
+periods:
+period,
+
+totalInterestPaid:
+totalInterestPaid,
+
+totalPrincipalPaid:
+totalPrincipalPaid,
+
+totalPayment:
+totalPayment,
+
+rows:
+rows
+
+};
+
+}
+
+}
+
+
+
+previousBalance =
+newBalance;
+
+
+previousTotalDebt =
+currentTotalDebt;
+
+
+
+balance =
+newBalance;
+
+
+accruedInterest =
+newAccruedInterest;
+
+}
+
+
+
+/*
+หากเกินจำนวนงวดสูงสุด
+*/
+
+return {
+
+status:
+"impossible",
+
+message:
+"จำนวนงวดที่คำนวณเกินขีดจำกัด ระบบจึงหยุดการคำนวณ",
+
+periods:
+rows.length,
+
+totalInterestPaid:
+totalInterestPaid,
+
+totalPrincipalPaid:
+totalPrincipalPaid,
+
+totalPayment:
+totalPayment,
+
+rows:
+rows
+
+};
+
+}
+
+
+
+/* =========================================================
+CREATE SCHEDULE TABLE
+========================================================= */
+
+function scheduleTable(rows) {
+
+
+if (
+!rows
+||
+rows.length === 0
+) {
+
+return `
+<div class="message warning">
+ไม่มีข้อมูลตารางการชำระ
+</div>
+`;
+
+}
+
+
+
+let html = `
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+งวดที่
+</th>
+
+<th>
+ต้นเงินคงเหลือ
+</th>
+
+<th>
+ดอกเบี้ย
+</th>
+
+<th>
+ตัดชำระต้นเงิน
+</th>
+
+<th>
+ตัดชำระดอกเบี้ย
+</th>
+
+<th>
+จำนวนเงินที่ชำระ
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+`;
+
+
+
+rows.forEach(
+row => {
+
+html += `
+
+<tr>
+
+<td class="center">
+${formatInteger(row.period)}
+</td>
+
+<td class="number">
+${formatMoney(row.balance)}
+</td>
+
+<td class="number">
+${formatMoney(row.interest)}
+</td>
+
+<td class="number">
+${formatMoney(row.principal)}
+</td>
+
+<td class="number">
+${formatMoney(row.interestPaid)}
+</td>
+
+<td class="number">
+${formatMoney(row.payment)}
+</td>
+
+</tr>
+
+`;
+
+}
+);
+
+
+
+html += `
+
+</tbody>
+
+</table>
+
+`;
+
+
+
+return html;
+
+}
+
+
+
+/* =========================================================
+CHANGE PLAN
+========================================================= */
+
+function changePlan() {
+
+
+const plan =
+document.getElementById("plan").value;
+
+
+
+const plan1Box =
+document.getElementById("plan1Box");
+
+
+const plan2Box =
+document.getElementById("plan2Box");
+
+
+
+if (plan === "plan1") {
+
+plan1Box.style.display =
+"block";
+
+plan2Box.style.display =
+"none";
+
+} else {
+
+plan1Box.style.display =
+"none";
+
+plan2Box.style.display =
+"block";
+
+}
+
+}
+
+
+
+/* =========================================================
+PLAN 1
+========================================================= */
+
+function calculatePlan1(base) {
+
+
+const frequency =
+document.getElementById(
+"paymentFrequency"
+).value;
+
+
+
+const paymentInput =
+document.getElementById(
+"paymentAmount"
+).value;
+
+
+
+const payment =
+Number(paymentInput);
+
+
+
+if (
+!Number.isFinite(payment)
+||
+payment <= 0
+) {
+
+throw new Error(
+"กรุณากรอกจำนวนเงินที่ต้องการชำระให้ถูกต้อง"
+);
+
+}
+
+
+
+let periodsPerYear;
+
+let frequencyText;
+
+
+
+if (frequency === "monthly") {
+
+periodsPerYear = 12;
+
+frequencyText =
+"รายเดือน";
+
+} else {
+
+periodsPerYear = 1;
+
+frequencyText =
+"รายปี";
+
+}
+
+
+
+const result =
+simulate(
+
+base.principal,
+
+base.annualRate,
+
+base.currentInterest,
+
+payment,
+
+periodsPerYear
+
+);
+
+
+
+return {
+
+...result,
+
+frequency:
+frequencyText,
+
+payment:
+payment
+
+};
+
+}
+
+
+
+/* =========================================================
+PLAN 2
+========================================================= */
+
+
+/*
+แผนที่ 2
+
+ผู้ใช้กำหนดระยะเวลา
+ระบบจะคำนวณจำนวนเงินที่ต้องชำระต่อเดือน
+
+ใช้วิธี Binary Search
+เพื่อหาระดับเงินชำระที่เหมาะสม
+*/
+
+function calculatePlan2(base) {
+
+
+const durationUnit =
+document.getElementById(
+"durationUnit"
+).value;
+
+
+
+const durationValue =
+Number(
+document.getElementById(
+"durationValue"
+).value
+);
+
+
+
+if (
+!Number.isFinite(durationValue)
+||
+durationValue <= 0
+) {
+
+throw new Error(
+"กรุณากรอกระยะเวลาที่ต้องการให้ถูกต้อง"
+);
+
+}
+
+
+
+let targetMonths;
+
+
+
+if (durationUnit === "years") {
+
+targetMonths =
+Math.round(
+durationValue * 12
+);
+
+} else {
+
+targetMonths =
+Math.round(
+durationValue
+);
+
+}
+
+
+
+if (targetMonths <= 0) {
+
+throw new Error(
+"ระยะเวลาต้องมากกว่า 0"
+);
+
+}
+
+
+
+/*
+ฟังก์ชันตรวจสอบว่า
+จำนวนเงินรายเดือนเท่านี้
+สามารถใช้หนี้หมดภายใน targetMonths หรือไม่
+*/
+
+function testPayment(
+monthlyPayment
+) {
+
+return simulate(
+
+base.principal,
+
+base.annualRate,
+
+base.currentInterest,
+
+monthlyPayment,
+
+12,
+
+targetMonths
+
+);
+
+}
+
+
+
+/*
+เริ่มค้นหาช่วงของ payment
+*/
+
+let low = 0;
+
+let high =
+Math.max(
+base.principal +
+base.currentInterest,
+
+1
+);
+
+
+
+/*
+ขยาย high
+จนกว่าจะสามารถปิดหนี้ได้
+*/
+
+let test =
+testPayment(high);
+
+
+
+let safety = 0;
+
+
+
+while (
+test.status !== "paid"
+&&
+safety < 100
+) {
+
+high *= 2;
+
+test =
+testPayment(high);
+
+safety++;
+
+}
+
+
+
+if (
+test.status !== "paid"
+) {
+
+throw new Error(
+"ไม่สามารถคำนวณจำนวนเงินที่ต้องชำระได้"
+);
+
+}
+
+
+
+/*
+Binary Search
+*/
+
+for (
+let i = 0;
+i < 100;
+i++
+) {
+
+
+const mid =
+(low + high) / 2;
+
+
+
+const result =
+testPayment(mid);
+
+
+
+if (
+result.status === "paid"
+&&
+result.periods <= targetMonths
+) {
+
+high = mid;
+
+} else {
+
+low = mid;
+
+}
+
+}
+
+
+
+const monthlyPayment =
+high;
+
+
+
+/*
+คำนวณผลลัพธ์อีกครั้ง
+ด้วยจำนวนเงินจริง
+*/
+
+const result =
+testPayment(
+monthlyPayment
+);
+
+
+
+/*
+จำนวนเงินต่อปี
+*/
+
+const yearlyPayment =
+monthlyPayment * 12;
+
+
+
+return {
+
+...result,
+
+targetMonths:
+targetMonths,
+
+monthlyPayment:
+monthlyPayment,
+
+yearlyPayment:
+yearlyPayment
+
+};
+
+}
+
+
+
+/* =========================================================
+SHOW RESULT
+========================================================= */
+
+function showResult(
+base,
+result,
+plan
+) {
+
+
+const resultElement =
+document.getElementById(
+"result"
+);
+
+
+
+resultElement.style.display =
+"block";
+
+
+
+const messageElement =
+document.getElementById(
+"message"
+);
+
+
+
+/*
+MESSAGE
+*/
+
+if (
+result.status === "paid"
+) {
+
+messageElement.innerHTML = `
+
+<div class="message success">
+
+✓ สามารถชำระหนี้จนหมดได้
+
+</div>
+
+`;
+
+} else if (
+result.status === "impossible"
+) {
+
+messageElement.innerHTML = `
+
+<div class="message warning">
+
+⚠️ ${
+result.message
+||
+"หากชำระตามจำนวนเงินที่กรอก จะไม่สามารถใช้หนี้จนหมดได้"
+}
+
+</div>
+
+`;
+
+} else {
+
+messageElement.innerHTML = `
+
+<div class="message error">
+
+${result.message || "เกิดข้อผิดพลาด"}
+
+</div>
+
+`;
+
+}
+
+
+
+/*
+SUMMARY
+*/
+
+const metrics =
+document.getElementById(
+"resultMetrics"
+);
+
+
+
+let durationText;
+
+
+
+if (
+result.periods
+) {
+
+const years =
+Math.floor(
+result.periods / 12
+);
+
+
+const months =
+result.periods % 12;
+
+
+
+if (years > 0) {
+
+durationText =
+`${years} ปี ${months} เดือน`;
+
+} else {
+
+durationText =
+`${months} เดือน`;
+
+}
+
+} else {
+
+durationText =
+"-";
+
+}
+
+
+
+/*
+PLAN 1
+*/
+
+if (plan === "plan1") {
+
+metrics.innerHTML = `
+
+<div class="result-box highlight">
+
+<div class="title">
+จำนวนเงินที่ชำระ
+</div>
+
+<div class="value">
+${formatMoney(result.payment)}
+บาท
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="title">
+ดอกเบี้ยที่ชำระทั้งหมด
+</div>
+
+<div class="value">
+${formatMoney(result.totalInterestPaid)}
+บาท
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="title">
+เงินต้นที่ชำระทั้งหมด
+</div>
+
+<div class="value">
+${formatMoney(result.totalPrincipalPaid)}
+บาท
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="title">
+ระยะเวลาชำระ
+</div>
+
+<div class="value">
+${durationText}
+</div>
+
+</div>
+
+`;
+
+}
+
+
+
+/*
+PLAN 2
+*/
+
+else {
+
+const durationYears =
+result.targetMonths / 12;
+
+
+
+metrics.innerHTML = `
+
+<div class="result-box highlight">
+
+<div class="title">
+ต้องชำระต่อเดือน
+</div>
+
+<div class="value">
+${formatMoney(result.monthlyPayment)}
+บาท
+</div>
+
+</div>
+
+
+<div class="result-box highlight">
+
+<div class="title">
+ต้องชำระต่อปี
+</div>
+
+<div class="value">
+${formatMoney(result.yearlyPayment)}
+บาท
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="title">
+ดอกเบี้ยที่ชำระทั้งหมด
+</div>
+
+<div class="value">
+${formatMoney(result.totalInterestPaid)}
+บาท
+</div>
+
+</div>
+
+
+<div class="result-box">
+
+<div class="title">
+เงินต้นที่ชำระทั้งหมด
+</div>
+
+<div class="value">
+${formatMoney(result.totalPrincipalPaid)}
+บาท
+</div>
+
+</div>
+
+`;
+
+}
+
+
+
+/*
+DETAIL
+*/
+
+const detail =
+document.getElementById(
+"detailInfo"
+);
+
+
+
+let planText;
+
+
+
+if (plan === "plan1") {
+
+planText =
+`ชำระ${result.frequency} ${formatMoney(result.payment)} บาท`;
+
+} else {
+
+planText =
+`กำหนดชำระหมดภายใน ${formatInteger(result.targetMonths)} เดือน`;
+
+}
+
+
+
+detail.innerHTML = `
+
+<div class="detail-item">
+
+<strong>
+เงินต้นเริ่มต้น:
+</strong>
+
+${formatMoney(base.principal)}
+บาท
+
+</div>
+
+
+<div class="detail-item">
+
+<strong>
+ดอกเบี้ย ณ ปัจจุบัน:
+</strong>
+
+${formatMoney(base.currentInterest)}
+บาท
+
+</div>
+
+
+<div class="detail-item">
+
+<strong>
+อัตราดอกเบี้ยต่อปี:
+</strong>
+
+${(base.annualRate * 100).toFixed(3)}
+%
+
+</div>
+
+
+<div class="detail-item">
+
+<strong>
+แผนการชำระ:
+</strong>
+
+${planText}
+
+</div>
+
+
+<div class="detail-item">
+
+<strong>
+จำนวนงวด:
+</strong>
+
+${formatInteger(result.periods)}
+งวด
+
+</div>
+
+
+<div class="detail-item">
+
+<strong>
+จำนวนเงินที่ชำระทั้งหมด:
+</strong>
+
+${formatMoney(result.totalPayment)}
+บาท
+
+</div>
+
+`;
+
+
+
+/*
+TABLE
+*/
+
+document.getElementById(
+"scheduleContainer"
+).innerHTML =
+scheduleTable(
+result.rows
+);
+
+
+
+/*
+เลื่อนหน้าจอไปยังผลลัพธ์
+*/
+
+resultElement.scrollIntoView({
+
+behavior: "smooth",
+
+block: "start"
+
+});
+
+}
+
+
+
+/* =========================================================
+MAIN CALCULATE
+========================================================= */
+
+function calculate() {
+
+
+try {
+
+
+/*
+อ่านข้อมูลพื้นฐาน
+*/
+
+const base =
+getBase();
+
+
+
+/*
+อ่านแผน
+*/
+
+const plan =
+document.getElementById(
+"plan"
+).value;
+
+
+
+let result;
+
+
+
+/*
+แบบที่ 1
+*/
+
+if (
+plan === "plan1"
+) {
+
+result =
+calculatePlan1(
+base
+);
+
+}
+
+
+
+/*
+แบบที่ 2
+*/
+
+else {
+
+result =
+calculatePlan2(
+base
+);
+
+}
+
+
+
+/*
+แสดงผล
+*/
+
+showResult(
+base,
+result,
+plan
+);
+
+
+} catch (error) {
+
+
+document.getElementById(
+"result"
+).style.display =
+"block";
+
+
+
+document.getElementById(
+"message"
+).innerHTML = `
+
+<div class="message error">
+
+❌ ${error.message}
+
+</div>
+
+`;
+
+
+
+document.getElementById(
+"resultMetrics"
+).innerHTML = "";
+
+
+
+document.getElementById(
+"detailInfo"
+).innerHTML = "";
+
+
+
+document.getElementById(
+"scheduleContainer"
+).innerHTML = "";
+
+}
+
+}
+
+
+
+/* =========================================================
+RESET FORM
+========================================================= */
+
+function resetForm() {
+
+
+document.getElementById(
+"principal"
+).value = "";
+
+
+
+document.getElementById(
+"currentInterest"
+).value = "";
+
+
+
+document.getElementById(
+"annualRate"
+).value = "";
+
+
+
+document.getElementById(
+"plan"
+).value = "plan1";
+
+
+
+document.getElementById(
+"paymentFrequency"
+).value = "monthly";
+
+
+
+document.getElementById(
+"paymentAmount"
+).value = "";
+
+
+
+document.getElementById(
+"durationUnit"
+).value = "months";
+
+
+
+document.getElementById(
+"durationValue"
+).value = "";
+
+
+
+document.getElementById(
+"plan1Box"
+).style.display =
+"block";
+
+
+
+document.getElementById(
+"plan2Box"
+).style.display =
+"none";
+
+
+
+document.getElementById(
+"result"
+).style.display =
+"none";
+
+
+
+window.scrollTo({
+
+top: 0,
+
+behavior: "smooth"
+
+});
+
+}
+
+
+
+/* =========================================================
+EVENT
+========================================================= */
+
+document.getElementById(
+"plan"
+).addEventListener(
+"change",
+changePlan
+);
+
+
+/* =========================================================
+INITIALIZE
+========================================================= */
+
+changePlan();
+
+
+</script>
+
+
+</body>
+</html>
+
+
